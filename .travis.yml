@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: YjCCQvZaVWoA8O49L20b0XfS1TogfxjhiOjN+bzebUc8EGWgHPTSUpENGiRr71LoQCwxG8Xk92yQAg5tX6uvjSk0qE78siuRAaccdz40WPKm/Ftwg1UxglMstpZDsWiLmL6RnSV73BItxHlZHvR31Er4o8dnoJRLA3JadhkI9+cNPwFxwE8GT41EL1CBHcFosy++F2oVfYn20cWqYwkxON2XocYRBeZriTVCenAPI0wrN+s7oz6K4cKW3Ng53volnaEqutIsZyVThI/mHxznwI9AC6wpxqjDCHISRns3c3PV0KPyvTR15VkBNuqLV9BKn6/aespTB3Vzb+/YUZ6CgCaew5AXKhj6mw82rOxU0A+Qxz2PTj69Rv7A9Eayfsy/QHHahx+8zzLPlvCnq3CFdgcE5NgUVHaigR0FOaf1Q06sLr+Q6mihtfLq7n1/fdoXywlTtRCPEr2/t8ZsoV1nwd7thZJuiHRhXcIERc1QkLptHSdjfBiJO6OgK3E/zoc08Xq0lmEO8PTNOlKsn8m2dzfkoJ63IZwKB1P+AelQZ0IF28HMXFUYua4iS6lfbMPm1KxMT4IAcDp1OpcDSzms/SqtfGwQWtEGzDjxYu9uR1xIRcentG94/NWI8g1CuCuq5tzhIw1RroETtO9N7NKpcUYUHT+JwcTWaTA1JOLOXhs=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Mayflower-and-Her-Log-July-15-1620-May-6-1621-Volume-1_4101
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
